@@ -32,11 +32,18 @@ module IntegrateJ2objc
 			"\t\t\t\t    \u2514 MyProject\n"+
 			"\t\t\t\t        \u2514 generated\n" +
 			"\t\t\t\t   would have a group argument: -g \"MyProject/generated\""				
+
 		method_option :target, 
 			required: true, 
 			type: :string, 
 			aliases: "-t",
 			desc: "the name of the target that generated sources should be added to in your xcode project"
+
+    method_option :files,
+      required: false,
+      type: :array,
+      desc: "extra source files to be included in the project file"
+
 		def integrate_source()
 			J2ObjcSharedLibSmanger.new().integrate_source(options);
 		end

@@ -1,4 +1,5 @@
 require 'xcodeproj'
+require 'pry'
 
 module IntegrateJ2objc
 	class J2ObjcSharedLibSmanger
@@ -8,6 +9,8 @@ module IntegrateJ2objc
 			# source_root = options[:source_root]
 			group = options[:group]
 			target = options[:target]
+
+      extra_files = options[:files]
 
 			project_root = File.dirname(project)
 
@@ -19,8 +22,8 @@ module IntegrateJ2objc
 
 			remove_old_group_and_files group, current_project
 
-			added_references = recreate_group_at_root(group, project_root, source_root, current_project)
-			
+			added_references = recreate_group_at_root(group, project_root, source_root, current_project, extra_files)
+
 			target_obj = target_named_in_project(target, current_project)
 
 			puts "adding files to #{target_obj.name}:"
@@ -47,9 +50,13 @@ module IntegrateJ2objc
 			end
 		end
 
-		def recreate_group_at_root(group_name, project_root, path_relative_to_project, project)
+		def recreate_group_at_root(group_name, project_root, path_relative_to_project, project, extra_files)
 			group = ensure_group(group_name, project, path_relative_to_project)
-			add_tree_to_group(File.join(project_root, path_relative_to_project), group)
+			refs = add_tree_to_group(File.join(project_root, path_relative_to_project), group)
+      (extra_files || []).each do |name|
+        refs << add_file_to_group(File.open(File.join(project_root, name)), project)
+      end
+      refs
 		end
 
 		def ensure_group(group_name, project, path_relative_to_project)
